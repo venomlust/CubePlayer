@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/venomlust/DensePlayer/issues"
   },
-  "homepage": "https://github.com/venomlust/DensePlayer#readme"
+  "homepage": "https://github.com/venomlust/DensePlayer#readme",
+  "devDependencies": {
+    "electron-packager": "^5.2.1",
+    "electron-prebuilt": "^0.36.10"
+  }
 }
