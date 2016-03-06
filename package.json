@@ -1,0 +1,19 @@
+{
+  "name": "dense-player",
+  "version": "1.0.0",
+  "description": "",
+  "main": "core.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/venomlust/DensePlayer.git"
+  },
+  "author": "Lucas Bertollo",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/venomlust/DensePlayer/issues"
+  },
+  "homepage": "https://github.com/venomlust/DensePlayer#readme"
+}
