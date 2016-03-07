@@ -4,12 +4,19 @@
 <head>
   <meta charset="utf-8">
   <title>Home</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="file:///assets/css/font-awesome.css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="file:///assets/css/bootstrap.css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="file:///assets/css/slider.css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="file:///assets/css/home.css" media="screen" title="no title" charset="utf-8">
 </head>
 
 <body>
   <header id="header">
     <div class="container">
-      <div id="basic-controls" class="">
+      <div id="basic-controls" class="pull-left">
         <div id="player-buttons">
           <ul class="list-inline">
             <li><a id="pause-btn" class="small-btn"><i class="fa fa-pause"></i></a></li>
@@ -18,27 +25,34 @@
           </ul>
         </div>
         <div id="player-volume">
-          <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="0" data-slider-id="volume" id="volume-gen" data-slider-tooltip="hide" data-slider-handle="round">
+          <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="0" data-slider-id="music-volume" id="volume-gen" data-slider-tooltip="hide" data-slider-handle="round">
         </div>
       </div>
 
-      <div id="realtime-info">
+      <div id="realtime-info" class="pull-right">
         <div class="">
           <h3>Playing: </h3>
           <h4>Test</h4>
         </div>
         <div class="">
-          <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" data-slider-id="timeline" id="timeline-gen" data-slider-tooltip="hide" data-slider-handle="round">
+          <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" data-slider-id="music-timeline" id="timeline-gen" data-slider-tooltip="hide" data-slider-handle="round">
           <p></p>
         </div>
       </div>
 
-      <a id="settings-btn" class="small-btn"><i class="fa fa-cog"></i></a>
+      <a id="settings-btn" class="small-btn pull-right"><i class="fa fa-cog"></i></a>
     </div>
   </header>
 
+  <div id="library">
 
+  </div>
 
+  <script type="text/javascript" src="file:///assets/js/jquery-1.12.1.js"></script>
+  <script type="text/javascript" src="file:///assets/js/jquery-1.12.1.js"></script>
+  <script type="text/javascript" src="file:///assets/js/bootstrap.js"></script>
+  <script type="text/javascript" src="file:///assets/js/bootstrap-slider.js"></script>
+    <script type="text/javascript" src="file:///assets/js/home.js"></script>
 </body>
 
 </html>

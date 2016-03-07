@@ -1,0 +1,34 @@
+header {
+  height: 120px;
+}
+#basic-control {
+  height: 120px;
+}
+#player-buttons {
+  text-align: center;
+}
+#player-buttons ul li a {
+  display: inline-block;
+  border-radius: 50%;
+  background-color: gray;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+#pause-btn, #stop-btn {
+  height: 30px;
+  width: 30px;
+  vertical-align: baseline;
+}
+#pause-btn i, #stop-btn i {
+  font-size: 15px;
+  margin-top: 7px;
+}
+#play-btn {
+  height: 50px;
+  width: 50px;
+}
+#play-btn i {
+  font-size: 30px;
+  margin-top: 10px;
+  margin-left: 5px;
+}
