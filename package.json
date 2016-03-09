@@ -1,5 +1,5 @@
 {
-  "name": "dense-player",
+  "name": "iceblock-player",
   "version": "1.0.0",
   "description": "",
   "main": "core.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/venomlust/DensePlayer.git"
+    "url": "git+https://github.com/venomlust/iceblockplayer.git"
   },
   "author": "Lucas Bertollo",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/venomlust/DensePlayer/issues"
+    "url": "https://github.com/venomlust/IceBlockPlayer/issues"
   },
-  "homepage": "https://github.com/venomlust/DensePlayer#readme",
+  "homepage": "https://github.com/venomlust/IceBlockPlayer#readme",
   "devDependencies": {
     "electron-packager": "^5.2.1",
     "electron-prebuilt": "^0.36.10"
