@@ -4,7 +4,7 @@
   "description": "",
   "main": "core.js",
   "scripts": {
-    "start":"electron ."
+    "start": "electron ."
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,8 @@
     "electron-prebuilt": "^0.36.10"
   },
   "dependencies": {
-    "configstore": "^2.0.0"
+    "configstore": "^2.0.0",
+    "musicmetadata": "^2.0.2",
+    "uuid": "^2.0.1"
   }
 }

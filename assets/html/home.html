@@ -14,27 +14,28 @@
 </head>
 
 <body>
-  <header id="header">
+  <header id="header" class="row">
     <div class="container">
-      <div id="basic-controls" class="pull-left">
-        <div id="player-buttons">
+      <div id="basic-controls" class="col-xs-4">
+        <div id="player-buttons" class="col-xs-12">
           <ul class="list-inline">
             <li><a id="pause-btn" class="small-btn"><i class="fa fa-pause"></i></a></li>
             <li><a id="play-btn" class="big-btn"><i class="fa fa-play"></i></a></li>
             <li><a id="stop-btn" class="small-btn"><i class="fa fa-stop"></i></a></li>
           </ul>
         </div>
-        <div id="player-volume">
+        <div id="player-volume" class="col-xs-12">
+          <a id="volume-btn" class="small-btn"><i class="fa fa-volume"></i></a>
           <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="0" data-slider-id="music-volume" id="volume-gen" data-slider-tooltip="hide" data-slider-handle="round">
         </div>
       </div>
 
-      <div id="realtime-info" class="pull-right">
-        <div class="">
-          <h3>Playing: </h3>
-          <h4>Test</h4>
+      <div id="realtime-info" class="col-xs-8">
+        <div class="row col-xs-12">
+          <h3 class="col-xs-4">Playing:</h3>
+          <h4 class="col-xs-8">Test</h4>
         </div>
-        <div class="">
+        <div class="col-xs-12">
           <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" data-slider-id="music-timeline" id="timeline-gen" data-slider-tooltip="hide" data-slider-handle="round">
           <p></p>
         </div>
@@ -44,15 +45,57 @@
     </div>
   </header>
 
-  <div id="library">
-
+  <div id="library" class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <h4>Artist</h4>
+        <hr>
+      </div>
+      <div class="container">
+        <div class="col-xs-12">
+          <h5>Album title</h5>
+          <hr>
+        </div>
+        <div class="col-xs-4">
+          <canvas id="canvas" width="100" height="100" style="border:1px solid #000000;"></canvas>
+        </div>
+        <div class="col-xs-8 ">
+          <table class="table">
+            <tr>
+              <td>1</td>
+              <td>Anna</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Anna</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Anna</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Anna</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Anna</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
-
   <script type="text/javascript" src="file:///assets/js/jquery-1.12.1.js"></script>
   <script type="text/javascript" src="file:///assets/js/jquery-1.12.1.js"></script>
   <script type="text/javascript" src="file:///assets/js/bootstrap.js"></script>
   <script type="text/javascript" src="file:///assets/js/bootstrap-slider.js"></script>
-    <script type="text/javascript" src="file:///assets/js/home.js"></script>
+  <script type="text/javascript" src="file:///assets/js/modernizr-custom.js">
+  </script>
+  <script type="text/javascript" src="file:///assets/js/home.js"></script>
+
+
+
 </body>
 
 </html>

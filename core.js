@@ -4,18 +4,24 @@ var DenseApp = require('app');
 var BrowserWindow = require('browser-window');
 
 var conf = new Configstore(pkg.name, {
-  email: null
+  data: [],
+  lastWindowSize: null,
+  settings: null
 });
 
+conf.set('data', []);
 
+global.sharedObj = {
+  'conf': conf
+};
 
 DenseApp.on('ready', function() {
   var homeWindow = new BrowserWindow({
-    width: 800,
+    width: 770,
     height: 600,
-    maxWidth: 800,
-    maxHeight: 600,
-    title: "Dense Player",
+    maxWidth: 770,
+    minWidth: 350,
+    title: "IceBlock Player",
     resizable: true,
     center: true,
     type: 'desktop',

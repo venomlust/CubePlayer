@@ -1,9 +1,21 @@
+body {
+  overflow: hidden;
+}
+#wrapper {
+  height: 100vh;
+  width: 100%;
+}
 header {
-  height: 120px;
+  min-height: 120px;
+  border-bottom: 1px solid grey;
 }
-#basic-control {
-  height: 120px;
+hr {
+  margin-top: 0;
+  margin-bottom: 0;
 }
+
+/* buttons */
+
 #player-buttons {
   text-align: center;
 }
@@ -31,4 +43,22 @@ header {
   font-size: 30px;
   margin-top: 10px;
   margin-left: 5px;
+}
+#settings-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+#realtime-info h3 {
+  padding-right: 0;
+}
+#realtime-info h3 {
+  height: 26px;
+  margin-top: 20px;
+  margin-bottom: 4px;
+  padding-left: 0px;
+}
+#library {
+  height: 100%;
+  overflow-x: hidden;
 }
