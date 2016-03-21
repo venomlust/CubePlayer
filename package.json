@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "configstore": "^2.0.0",
+    "howler": "^1.1.29",
     "musicmetadata": "^2.0.2",
     "uuid": "^2.0.1"
   }

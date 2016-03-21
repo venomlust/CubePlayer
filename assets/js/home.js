@@ -1,9 +1,14 @@
+
+// IDEA: Split functions into another javascript files
+// IDEA: angular.js for the library
+
 var fs = require('fs');
 var Path = require('path');
 var mm = require('musicmetadata');
 var remote = require('remote');
 var uuidGen = require('uuid');
 var debug = true;
+var howler = require('howler');
 
 Array.prototype.extend = function(other_array) {
   if (other_array.constructor !== Array) return;
@@ -17,6 +22,15 @@ var enumTypeUpdate = {
   NEW_ALBUM: 1,
   NEW_MUSIC: 2
 };
+
+var enumMusicState = {
+  PLAYING:0,
+  PAUSED:1,
+  STOPPED:2
+};
+
+var data = [];
+var playing = {music:null , state:enumMusicState.STOPPED};
 
 var conf = remote.getGlobal('sharedObj').conf;
 
@@ -80,6 +94,23 @@ $('#library').on('drop', function(event) {
   }
 });
 
+$('#play-btn').on('click', function(event){
+  if(playing.music !== null && playing.state == enumMusicState.PAUSED){
+    playing.music.play();
+    playing.state = enumMusicState.PLAYING;
+  }
+});
+$('#pause-btn').on('click', function(event){
+  if(playing.music !== null && playing.state == enumMusicState.PLAYING){
+    playing.music.pause();
+    playing.state = enumMusicState.PAUSED;
+  }
+});
+$('#stop-btn').on('click', function(event){
+  if(playing.music !== null) playing.music.stop();
+  playing.music = null;
+  playing.state = enumMusicState.STOPPED;
+});
 
 function checkFile(path) {
   var pack = [];
@@ -144,15 +175,18 @@ function organizeMediaFiles(filePath) {
 }
 
 function addToLibrary(metadata, path) {
-  var data = conf.get('data');
+
   var holder = null;
+
   console.log(data);
   var i, j, k;
   for (i = 0; i < data.length; i++) {
     if (data[i].artist === metadata.artist[0]) {
       for (j = 0; j < data[i].album.length; j++) {
+        console.log(data[i].album.length);
+        console.log(j);
+        console.log('Stored album name: ' + data[i].album[j].name + ' Delivered: ' + metadata.album);
         if (data[i].album[j].name === metadata.album) {
-          console.log('Stored album name: ' + data[i].album[j].name + ' Delivered: ' + metadata.album);
           for (k = 0; k < data[i].album[j].music.length; k++) {
             if (data[i].album[j].music[k].title === metadata.title) {
               return;
@@ -161,6 +195,7 @@ function addToLibrary(metadata, path) {
           console.log('new music');
           holder = {
             uuid: 'music_' + uuidGen.v1(),
+            path: path,
             title: metadata.title,
             track: metadata.track.no,
             duration: metadata.duration
@@ -168,7 +203,7 @@ function addToLibrary(metadata, path) {
           data[i].album[j].music.push(holder);
           console.log(data[i].album[j].uuid);
           displayToLibrary(enumTypeUpdate.NEW_MUSIC, holder, data[i].album[j].uuid);
-          conf.set('data', data);
+          //conf.set('data', data);
           return;
         }
       }
@@ -182,6 +217,7 @@ function addToLibrary(metadata, path) {
         },
         music: [{
           uuid: 'music_' + uuidGen.v1(),
+          path: path,
           title: metadata.title,
           track: metadata.track.no,
           duration: metadata.duration
@@ -189,7 +225,7 @@ function addToLibrary(metadata, path) {
       };
       data[i].album.push(holder);
       displayToLibrary(enumTypeUpdate.NEW_ALBUM, holder, data[i].uuid);
-      conf.set('data', data);
+      //conf.set('data', data);
       return;
     }
   }
@@ -214,8 +250,8 @@ function addToLibrary(metadata, path) {
     }]
   };
   data.push(holder);
-  conf.set('data', data);
   displayToLibrary(enumTypeUpdate.NEW_ARTIST, holder);
+  //conf.set('data', data);
   return;
 }
 
@@ -230,7 +266,9 @@ function displayToLibrary(type, obj, info) {
     tr,
     tdTrack,
     tdTitle,
-    line;
+    line,
+    albumNameHolder,
+    albumName;
 
   switch (type) {
     case enumTypeUpdate.NEW_ARTIST:
@@ -252,11 +290,64 @@ function displayToLibrary(type, obj, info) {
       row.className = 'row';
       row.id = obj.album[0].uuid;
 
-      var albumNameHolder = document.createElement('div');
+      albumNameHolder = document.createElement('div');
       albumNameHolder.className = 'col-xs-12';
 
-      var albumName = document.createElement('h5');
+      albumName = document.createElement('h5');
       albumName.innerHTML = obj.album[0].name;
+
+      line = document.createElement('hr');
+
+      albumNameHolder.appendChild(albumName);
+      albumNameHolder.appendChild(line);
+
+      row.appendChild(albumNameHolder);
+
+      colFour = document.createElement('div');
+      colFour.className = 'col-xs-4';
+
+      canvas = document.createElement('canvas');
+      canvas.width = '100';
+      canvas.height = '100';
+
+      setImage(obj.album[0].picture.data , obj.album[0].picture.format , canvas);
+
+      colEight = document.createElement('div');
+      colEight.className = 'col-xs-8';
+
+      table = document.createElement('table');
+      table.className = 'table';
+
+      tr = table.insertRow();
+      tr.id = obj.album[0].music[0].uuid;
+
+      tr.addEventListener('dblclick' , play , false);
+
+      tdTrack = tr.insertCell(0);
+      tdTrack.innerHTML = obj.album[0].music[0].track;
+
+      tdTitle = tr.insertCell(1);
+      tdTitle.innerHTML = obj.album[0].music[0].title;
+
+      artist.appendChild(row);
+      row.appendChild(colFour);
+      colFour.appendChild(canvas);
+      row.appendChild(colEight);
+      colEight.appendChild(table);
+      library.appendChild(artist);
+      break;
+    case enumTypeUpdate.NEW_ALBUM:
+      artist = document.getElementById(info);
+
+      row = document.createElement('div');
+      row.className = 'row';
+      row.id = obj.uuid;
+
+      albumNameHolder = document.createElement('div');
+      albumNameHolder.className = 'col-xs-12';
+
+      albumName = document.createElement('h5');
+      albumName.innerHTML = obj.name;
 
       line = document.createElement('hr');
 
@@ -280,50 +371,14 @@ function displayToLibrary(type, obj, info) {
       table.className = 'table';
 
       tr = table.insertRow();
-      tr.id = obj.album[0].music[0].uuid;
+      tr.id = obj.music[0].uuid;
+      tr.addEventListener('dblclick' , play , false);
 
       tdTrack = tr.insertCell(0);
-      tdTrack.innerHTML = obj.album[0].music[0].track;
+      tdTrack.innerHTML = obj.music[0].track;
 
       tdTitle = tr.insertCell(1);
-      tdTitle.innerHTML = obj.album[0].music[0].title;
-
-      artist.appendChild(row);
-      row.appendChild(colFour);
-      colFour.appendChild(canvas);
-      row.appendChild(colEight);
-      colEight.appendChild(table);
-      library.appendChild(artist);
-      break;
-    case enumTypeUpdate.NEW_ALBUM:
-      artist = document.getElementById(info);
-
-      row = document.createElement('div');
-      row.className = 'row';
-      row.id = obj.album[0].uuid;
-
-      colFour = document.createElement('div');
-      colFour.className = 'col-xs-4';
-
-      canvas = document.createElement('canvas');
-      canvas.width = '100';
-      canvas.height = '100';
-      canvas.setAttribute('style', 'border:1px solid #000000;');
-
-      colEight = document.createElement('div');
-      colEight.className = 'col-xs-8';
-
-      table = document.createElement('table');
-      table.className = 'table';
-
-      tr = table.insertRow();
-      tr.id = obj.album[0].music[0].uuid;
-
-      tdTrack = tr.insertCell(0);
-      tdTrack.innerHTML = obj.album[0].music[0].track;
-
-      tdTitle = tr.insertCell(1);
-      tdTitle.innerHTML = obj.album[0].music[0].title;
+      tdTitle.innerHTML = obj.music[0].title;
 
       row.appendChild(colFour);
       colFour.appendChild(canvas);
@@ -336,6 +391,7 @@ function displayToLibrary(type, obj, info) {
 
       tr = table.insertRow();
       tr.id = obj.uuid;
+      tr.addEventListener('dblclick' , play , false);
 
       tdTrack = tr.insertCell(0);
       tdTrack.innerHTML = obj.track;
@@ -344,4 +400,58 @@ function displayToLibrary(type, obj, info) {
       tdTitle.innerHTML = obj.title;
       break;
   }
+}
+
+function setImage(unitArray, format, canvas) {
+  var u8 = new Uint8Array(unitArray);
+  var b64encoded = btoa(Uint8ToString(u8));
+
+  var ctx = canvas.getContext("2d");
+
+  var image = new Image();
+
+  image.onload = function() {
+    ctx.drawImage(image, 0, 0 , 100 , 100);
+  };
+  image.src = 'data:image/' + format + ';base64,' + b64encoded;
+}
+
+function Uint8ToString(u8a){
+  var CHUNK_SZ = 0x10000;
+  var c = [];
+  for (var i=0; i < u8a.length; i+=CHUNK_SZ) {
+    c.push(String.fromCharCode.apply(null, u8a.subarray(i, i+CHUNK_SZ)));
+  }
+  return c.join("");
+}
+
+function play(){
+  console.log('play active' + this.id);
+  var music = getObjects(data , 'uuid' , this.id);
+  console.log(music);
+  console.log(music[0].path);
+  if(playing.music === null){
+    playing.music = new howler.Howl({urls: [music[0].path] , html5:true}).play();
+    playing.state = enumMusicState.PLAYING;
+    }
+  else{
+    playing.music.stop();
+    playing.state = enumMusicState.STOPPED;
+    playing.music = null;
+    playing.music = new howler.Howl({urls: [music[0].path]}).play();
+    playing.state = enumMusicState.PLAYING;
+  }
+}
+
+function getObjects(obj, key, val) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(getObjects(obj[i], key, val));
+        } else if (i == key && obj[key] == val) {
+            objects.push(obj);
+        }
+    }
+    return objects;
 }

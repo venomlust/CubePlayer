@@ -4,7 +4,7 @@ var DenseApp = require('app');
 var BrowserWindow = require('browser-window');
 
 var conf = new Configstore(pkg.name, {
-  data: [],
+  data: null,
   lastWindowSize: null,
   settings: null
 });
