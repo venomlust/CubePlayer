@@ -1,4 +1,3 @@
-
 // IDEA: Split functions into another javascript files
 // IDEA: angular.js for the library
 
@@ -24,21 +23,36 @@ var enumTypeUpdate = {
 };
 
 var enumMusicState = {
-  PLAYING:0,
-  PAUSED:1,
-  STOPPED:2
+  PLAYING: 0,
+  PAUSED: 1,
+  STOPPED: 2
 };
 
 var data = [];
-var playing = {music:null , state:enumMusicState.STOPPED};
+
+var playing = {
+  music: null,
+  element: null,
+  state: enumMusicState.STOPPED,
+  volume: 1,
+  duration: null,
+  time: null,
+  title: null
+};
 
 var conf = remote.getGlobal('sharedObj').conf;
 
 $('#volume-gen').slider();
 $('#timeline-gen').slider();
 
+$('#music-volume').on('slide', function(evt) {
+  playing.music.volume(evt.value * (evt.value / 100));
+});
+
 $('#music-timeline').css('width', '100%');
 $('#music-volume').css('width', '100%');
+
+  $('#library').height($(document).height() - $('#header').height());
 
 $(window).resize(function() {
   $('#library').height($(document).height() - $('#header').height());
@@ -94,22 +108,14 @@ $('#library').on('drop', function(event) {
   }
 });
 
-$('#play-btn').on('click', function(event){
-  if(playing.music !== null && playing.state == enumMusicState.PAUSED){
-    playing.music.play();
-    playing.state = enumMusicState.PLAYING;
-  }
+$('#play-btn').on('click', function(event) {
+  playMusic(null, null);
 });
-$('#pause-btn').on('click', function(event){
-  if(playing.music !== null && playing.state == enumMusicState.PLAYING){
-    playing.music.pause();
-    playing.state = enumMusicState.PAUSED;
-  }
+$('#pause-btn').on('click', function(event) {
+  pauseMusic();
 });
-$('#stop-btn').on('click', function(event){
-  if(playing.music !== null) playing.music.stop();
-  playing.music = null;
-  playing.state = enumMusicState.STOPPED;
+$('#stop-btn').on('click', function(event) {
+ stopMusic();
 });
 
 function checkFile(path) {
@@ -203,7 +209,6 @@ function addToLibrary(metadata, path) {
           data[i].album[j].music.push(holder);
           console.log(data[i].album[j].uuid);
           displayToLibrary(enumTypeUpdate.NEW_MUSIC, holder, data[i].album[j].uuid);
-          //conf.set('data', data);
           return;
         }
       }
@@ -225,7 +230,6 @@ function addToLibrary(metadata, path) {
       };
       data[i].album.push(holder);
       displayToLibrary(enumTypeUpdate.NEW_ALBUM, holder, data[i].uuid);
-      //conf.set('data', data);
       return;
     }
   }
@@ -251,7 +255,6 @@ function addToLibrary(metadata, path) {
   };
   data.push(holder);
   displayToLibrary(enumTypeUpdate.NEW_ARTIST, holder);
-  //conf.set('data', data);
   return;
 }
 
@@ -268,7 +271,7 @@ function displayToLibrary(type, obj, info) {
     tdTitle,
     line,
     albumNameHolder,
-    albumName;
+    albumName,att;
 
   switch (type) {
     case enumTypeUpdate.NEW_ARTIST:
@@ -296,10 +299,7 @@ function displayToLibrary(type, obj, info) {
       albumName = document.createElement('h5');
       albumName.innerHTML = obj.album[0].name;
 
-      line = document.createElement('hr');
-
       albumNameHolder.appendChild(albumName);
-      albumNameHolder.appendChild(line);
 
       row.appendChild(albumNameHolder);
 
@@ -310,7 +310,7 @@ function displayToLibrary(type, obj, info) {
       canvas.width = '100';
       canvas.height = '100';
 
-      setImage(obj.album[0].picture.data , obj.album[0].picture.format , canvas);
+      setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
 
       colEight = document.createElement('div');
       colEight.className = 'col-xs-8';
@@ -321,7 +321,11 @@ function displayToLibrary(type, obj, info) {
       tr = table.insertRow();
       tr.id = obj.album[0].music[0].uuid;
 
-      tr.addEventListener('dblclick' , play , false);
+      att = document.createAttribute("data-track");
+      att.value = obj.album[0].music[0].track;
+      tr.setAttributeNode(att);
+
+      tr.addEventListener('dblclick', play, false);
 
       tdTrack = tr.insertCell(0);
       tdTrack.innerHTML = obj.album[0].music[0].track;
@@ -349,10 +353,7 @@ function displayToLibrary(type, obj, info) {
       albumName = document.createElement('h5');
       albumName.innerHTML = obj.name;
 
-      line = document.createElement('hr');
-
       albumNameHolder.appendChild(albumName);
-      albumNameHolder.appendChild(line);
 
       row.appendChild(albumNameHolder);
 
@@ -362,7 +363,8 @@ function displayToLibrary(type, obj, info) {
       canvas = document.createElement('canvas');
       canvas.width = '100';
       canvas.height = '100';
-      canvas.setAttribute('style', 'border:1px solid #000000;');
+
+      setImage(obj.picture.data, obj.picture.format, canvas);
 
       colEight = document.createElement('div');
       colEight.className = 'col-xs-8';
@@ -372,7 +374,12 @@ function displayToLibrary(type, obj, info) {
 
       tr = table.insertRow();
       tr.id = obj.music[0].uuid;
-      tr.addEventListener('dblclick' , play , false);
+
+      att = document.createAttribute("data-track");
+      att.value = obj.album[0].music[0].track;
+      tr.setAttributeNode(att);
+
+      tr.addEventListener('dblclick', play, false);
 
       tdTrack = tr.insertCell(0);
       tdTrack.innerHTML = obj.music[0].track;
@@ -391,7 +398,12 @@ function displayToLibrary(type, obj, info) {
 
       tr = table.insertRow();
       tr.id = obj.uuid;
-      tr.addEventListener('dblclick' , play , false);
+
+      att = document.createAttribute("data-track");
+      att.value = obj.track;
+      tr.setAttributeNode(att);
+
+      tr.addEventListener('dblclick', play, false);
 
       tdTrack = tr.insertCell(0);
       tdTrack.innerHTML = obj.track;
@@ -399,6 +411,19 @@ function displayToLibrary(type, obj, info) {
       tdTitle = tr.insertCell(1);
       tdTitle.innerHTML = obj.title;
       break;
+  }
+}
+
+//working here
+function organizeTrack(table , tr){
+  var length = table.rows.length;
+  if(length == 1){
+    if(parseInt(table.item(0).getAttribute('data-track')) < parseInt(tr.getAttribute('data-track'))){
+
+    }
+  }
+  for(var i = 0; i < length; i++){
+    //if(parseInt(table.item(i).getAttribute('data-track')) < )
   }
 }
 
@@ -411,47 +436,121 @@ function setImage(unitArray, format, canvas) {
   var image = new Image();
 
   image.onload = function() {
-    ctx.drawImage(image, 0, 0 , 100 , 100);
+    ctx.drawImage(image, 0, 0, 100, 100);
   };
   image.src = 'data:image/' + format + ';base64,' + b64encoded;
 }
 
-function Uint8ToString(u8a){
+function Uint8ToString(u8a) {
   var CHUNK_SZ = 0x10000;
   var c = [];
-  for (var i=0; i < u8a.length; i+=CHUNK_SZ) {
-    c.push(String.fromCharCode.apply(null, u8a.subarray(i, i+CHUNK_SZ)));
+  for (var i = 0; i < u8a.length; i += CHUNK_SZ) {
+    c.push(String.fromCharCode.apply(null, u8a.subarray(i, i + CHUNK_SZ)));
   }
   return c.join("");
 }
 
-function play(){
+function play() {
   console.log('play active' + this.id);
-  var music = getObjects(data , 'uuid' , this.id);
-  console.log(music);
-  console.log(music[0].path);
-  if(playing.music === null){
-    playing.music = new howler.Howl({urls: [music[0].path] , html5:true}).play();
-    playing.state = enumMusicState.PLAYING;
-    }
-  else{
+  var music = getObjects(data, 'uuid', this.id);
+
+  document.getElementById('music-name').innerHTML = music[0].title;
+  document.getElementById('music-time').innerHTML = '0:00 / ' + music[0].duration;
+
+  playMusic(music[0].path, this);
+}
+
+function playMusic(path, element) {
+  if (playing.music === null && path !== null && element !== null) {
+    console.log('setuping music');
+    playing.music = setUpMusic(path).play();
+    selectMusic(element);
+  } else if (playing.music !== null && playing.state == enumMusicState.PAUSED) {
+    console.log('returning music');
+    playing.music.play();
+    //playing.music.fade(0, 1, 1000);
+    //playing.state = enumMusicState.PLAYING;
+  } else if (playing.music !== null && path !== null && element !== null) {
+    console.log('changing music');
     playing.music.stop();
-    playing.state = enumMusicState.STOPPED;
     playing.music = null;
-    playing.music = new howler.Howl({urls: [music[0].path]}).play();
-    playing.state = enumMusicState.PLAYING;
+    unselectMusic();
+    selectMusic(element);
+    playing.music = setUpMusic(path).play().fade(0, 1, 1000);
   }
 }
 
-function getObjects(obj, key, val) {
-    var objects = [];
-    for (var i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        if (typeof obj[i] == 'object') {
-            objects = objects.concat(getObjects(obj[i], key, val));
-        } else if (i == key && obj[key] == val) {
-            objects.push(obj);
-        }
+function pauseMusic() {
+  if (playing.music !== null && playing.state == enumMusicState.PLAYING) {
+    playing.music.pause();
+  }
+}
+
+function stopMusic() {
+
+}
+
+function selectMusic(element) {
+  playing.element = element;
+  element.style.backgroundColor = '#34495E';
+  element.style.color = 'white';
+}
+
+function unselectMusic() {
+  if (playing.element !== null) {
+    playing.element.removeAttribute("style");
+    playing.element = null;
+  }
+}
+
+function setUpMusic(path) {
+  console.log('creating object');
+  var music = new howler.Howl({
+    urls: [path],
+    volume: playing.volume,
+    onend: function() {
+      playing.state = enumMusicState.STOPPED;
+      playing.music = null;
+      unselectMusic();
+      document.getElementById('music-name').innerHTML = '';
+      document.getElementById('music-time').innerHTML = '0:00 / 0:00';
+    },
+    onpause: function() {
+      //this.fade(1, 0, 1000);
+      playing.state = enumMusicState.PAUSED;
+    },
+    onstop: function() {
+      if (playing.music !== null) {
+        playing.music.stop();
+        playing.music = null;
+        unselectMusic();
+        document.getElementById('music-name').innerHTML = '';
+        document.getElementById('music-time').innerHTML = '0:00 / 0:00';
+        playing.state = enumMusicState.STOPPED;
+      }
+    },
+    onplay: function() {
+      //this.fade(0, 1, 1000);
+      playing.state = enumMusicState.PLAYING;
     }
-    return objects;
+  });
+  console.log('returning music');
+  return music;
+}
+
+function getObjects(obj, key, val) {
+  var objects = [];
+  for (var i in obj) {
+    if (!obj.hasOwnProperty(i)) continue;
+    if (typeof obj[i] == 'object') {
+      objects = objects.concat(getObjects(obj[i], key, val));
+    } else if (i == key && obj[key] == val) {
+      objects.push(obj);
+    }
+  }
+  return objects;
+}
+
+function toMinutes(seconds) {
+
 }

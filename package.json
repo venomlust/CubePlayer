@@ -4,7 +4,11 @@
   "description": "",
   "main": "core.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "buildWindows64": "electron-packager . IceBlockPlayer --platform=win32 --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=logo.ico",
+    "buildWindows32": "electron-packager . IceBlockPlayer --platform=win32 --arch=ia32 --version=0.37.2 --overwrite --ignore=node_modules/electron-*",
+    "buildOSX":"electron-packager . IceBlockPlayer --platform=darwin --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-*",
+    "buildLinux":"electron-packager . IceBlockPlayer --platform=linux --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-*"
   },
   "repository": {
     "type": "git",
@@ -18,7 +22,7 @@
   "homepage": "https://github.com/venomlust/IceBlockPlayer#readme",
   "devDependencies": {
     "electron-packager": "^5.2.1",
-    "electron-prebuilt": "^0.36.10"
+    "electron-prebuilt": "^0.37.2"
   },
   "dependencies": {
     "configstore": "^2.0.0",

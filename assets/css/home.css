@@ -1,5 +1,12 @@
 body {
   overflow: hidden;
+  font-family: 'Trebuchet MS';
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 #wrapper {
   height: 100vh;
@@ -7,11 +14,17 @@ body {
 }
 header {
   min-height: 120px;
-  border-bottom: 1px solid grey;
+  border-bottom: 1px solid #67809F;
+  background-image: linear-gradient(to top, #4183D7, #548fdb);
+  padding-top: 10px;
+  color: white;
 }
 hr {
   margin-top: 0;
   margin-bottom: 0;
+}
+#realtime-info h3{
+  margin-left: 10px;
 }
 
 /* buttons */
@@ -22,7 +35,7 @@ hr {
 #player-buttons ul li a {
   display: inline-block;
   border-radius: 50%;
-  background-color: gray;
+  background-color: #E4F1FE;
   padding-left: 0px;
   padding-right: 0px;
 }
@@ -60,5 +73,35 @@ hr {
 }
 #library {
   height: 100%;
+  background-color: white;
+  color: #34495E;
   overflow-x: hidden;
+}
+hr {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(103, 128, 159, 0.75), rgba(0, 0, 0, 0));
+}
+.slider-handle {
+  background-color: #67809F;
+  border: 1px solid #34495E;
+  background-image: linear-gradient(to top, #67809F, #768ca8);
+  opacity: 1;
+}
+.slider-selection {
+  background-color: #34495E;
+  background-image: linear-gradient(to top, #34495E, #485b6e);
+}
+tr {
+  cursor: pointer;
+}
+tr:hover {
+  background-color: #67809F;
+  color: white;
+}
+h5 {
+  font-weight: bold;
+}
+#music-time {
+  text-align: -webkit-right;
 }
