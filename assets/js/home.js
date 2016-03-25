@@ -1,3 +1,5 @@
+//Copyright 2016 Lucas Bertollo
+
 // IDEA: Split functions into another javascript files
 // IDEA: angular.js for the library
 

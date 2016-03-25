@@ -1,3 +1,5 @@
+//Copyright 2016 Lucas Bertollo
+
 var Configstore = require('configstore');
 var pkg = require('./package.json');
 var DenseApp = require('app');

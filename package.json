@@ -1,5 +1,5 @@
 {
-  "name": "iceblock-player",
+  "name": "cube-player",
   "version": "1.0.0",
   "description": "",
   "main": "core.js",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/venomlust/iceblockplayer.git"
+    "url": "git+https://github.com/venomlust/CubePlayer.git"
   },
   "author": "Lucas Bertollo",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/venomlust/IceBlockPlayer/issues"
+    "url": "https://github.com/venomlust/CubePlayer/issues"
   },
-  "homepage": "https://github.com/venomlust/IceBlockPlayer#readme",
+  "homepage": "https://github.com/venomlust/CubePlayer.git#readme",
   "devDependencies": {
     "electron-packager": "^5.2.1",
     "electron-prebuilt": "^0.37.2"
