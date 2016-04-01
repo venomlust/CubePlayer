@@ -75,7 +75,7 @@ hr {
   height: 100%;
   background-color: white;
   color: #34495E;
-  overflow-x: hidden;
+  overflow: auto;
 }
 hr {
   border: 0;

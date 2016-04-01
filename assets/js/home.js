@@ -4,6 +4,8 @@
 // IDEA: angular.js for the library
 
 var fs = require('fs');
+var ipcRenderer = require('electron')
+  .ipcRenderer;
 var Path = require('path');
 var mm = require('musicmetadata');
 var remote = require('remote');
@@ -30,7 +32,15 @@ var enumMusicState = {
   STOPPED: 2
 };
 
+var enumWorkerMessage = {
+  RUN: 0,
+  PAUSE: 1,
+  START:2,
+  SEEK:3
+};
+
 var data = [];
+var worker = new Worker("../../assets/js/music-worker.js");
 
 var playing = {
   music: null,
@@ -44,23 +54,42 @@ var playing = {
 
 var conf = remote.getGlobal('sharedObj').conf;
 
-$('#volume-gen').slider();
-$('#timeline-gen').slider();
-
-$('#music-volume').on('slide', function(evt) {
-  playing.music.volume(evt.value * (evt.value / 100));
+$('#volume-slider').slider({
+  range: "min",
+  animate: true,
+  min: 0,
+  max: 10,
+  value: 10,
+  slide: function(event, ui) {
+    playing.music.volume(ui.value * (ui.value / 100));
+  }
 });
+
+$('#music-slider').slider({
+  range: "min",
+  animate: true,
+  min: 0,
+  max: 0,
+  value: 0,
+  stop: function(event, ui) {
+    playing.music.pos(ui.value);
+    worker.postMessage({
+      type: enumWorkerMessage.SEEK,
+      time: ui.value
+    });
+  }
+});
+
 
 $('#music-timeline').css('width', '100%');
 $('#music-volume').css('width', '100%');
 
-  $('#library').height($(document).height() - $('#header').height());
+$('#library').height($(window).height() - $('#header').height());
+var test = document.getElementById('#library');
+
 
 $(window).resize(function() {
-  $('#library').height($(document).height() - $('#header').height());
-  console.log($('#header').height());
-  console.log($(document).height());
-
+  $('#library').height($(window).height() - $('#header').height());
   if (Modernizr.mq('only screen and (max-width: 644px)')) {
     console.log('modernizer');
     $('#basic-controls').removeClass('col-xs-4');
@@ -85,6 +114,11 @@ $(window).resize(function() {
 });
 
 $('#library').on('dragover', function(event) {
+  event.stopPropagation();
+  event.preventDefault();
+});
+
+$('#header').on('dragover', function(event) {
   event.stopPropagation();
   event.preventDefault();
 });
@@ -117,7 +151,7 @@ $('#pause-btn').on('click', function(event) {
   pauseMusic();
 });
 $('#stop-btn').on('click', function(event) {
- stopMusic();
+  stopMusic();
 });
 
 function checkFile(path) {
@@ -206,11 +240,11 @@ function addToLibrary(metadata, path) {
             path: path,
             title: metadata.title,
             track: metadata.track.no,
-            duration: metadata.duration
+            duration: ((metadata.duration | 0) + 2)
           };
           data[i].album[j].music.push(holder);
           console.log(data[i].album[j].uuid);
-          displayToLibrary(enumTypeUpdate.NEW_MUSIC, holder, data[i].album[j].uuid);
+          displayToLibrary(enumTypeUpdate.NEW_MUSIC, holder, data[i].album[j].uuid, false);
           return;
         }
       }
@@ -227,11 +261,11 @@ function addToLibrary(metadata, path) {
           path: path,
           title: metadata.title,
           track: metadata.track.no,
-          duration: metadata.duration
+          duration: ((metadata.duration | 0) + 2)
         }]
       };
       data[i].album.push(holder);
-      displayToLibrary(enumTypeUpdate.NEW_ALBUM, holder, data[i].uuid);
+      displayToLibrary(enumTypeUpdate.NEW_ALBUM, holder, data[i].uuid, false);
       return;
     }
   }
@@ -251,16 +285,16 @@ function addToLibrary(metadata, path) {
         path: path,
         title: metadata.title,
         track: metadata.track.no,
-        duration: metadata.duration
+        duration: ((metadata.duration | 0) + 2)
       }]
     }]
   };
   data.push(holder);
-  displayToLibrary(enumTypeUpdate.NEW_ARTIST, holder);
+  displayToLibrary(enumTypeUpdate.NEW_ARTIST, holder, null, false);
   return;
 }
 
-function displayToLibrary(type, obj, info) {
+function displayToLibrary(type, obj, info, flag) {
   var library = document.getElementById('library');
   var artist,
     row,
@@ -273,7 +307,7 @@ function displayToLibrary(type, obj, info) {
     tdTitle,
     line,
     albumNameHolder,
-    albumName,att;
+    albumName, att;
 
   switch (type) {
     case enumTypeUpdate.NEW_ARTIST:
@@ -291,62 +325,70 @@ function displayToLibrary(type, obj, info) {
 
       artist.appendChild(artistNameHolder);
 
-      row = document.createElement('div');
-      row.className = 'row';
-      row.id = obj.album[0].uuid;
+      if (!flag) {
+        row = document.createElement('div');
+        row.className = 'row';
+        row.id = obj.album[0].uuid;
 
-      albumNameHolder = document.createElement('div');
-      albumNameHolder.className = 'col-xs-12';
+        albumNameHolder = document.createElement('div');
+        albumNameHolder.className = 'col-xs-12';
 
-      albumName = document.createElement('h5');
-      albumName.innerHTML = obj.album[0].name;
+        albumName = document.createElement('h5');
+        albumName.innerHTML = obj.album[0].name;
 
-      albumNameHolder.appendChild(albumName);
+        albumNameHolder.appendChild(albumName);
 
-      row.appendChild(albumNameHolder);
+        row.appendChild(albumNameHolder);
 
-      colFour = document.createElement('div');
-      colFour.className = 'col-xs-4';
+        colFour = document.createElement('div');
+        colFour.className = 'col-xs-4';
 
-      canvas = document.createElement('canvas');
-      canvas.width = '100';
-      canvas.height = '100';
+        canvas = document.createElement('canvas');
+        canvas.width = '100';
+        canvas.height = '100';
 
-      setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
+        if (typeof obj.album[0].picture.data.data == "undefined")
+          setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
+        else
+          setImage(obj.album[0].picture.data.data, obj.album[0].picture.format, canvas);
 
-      colEight = document.createElement('div');
-      colEight.className = 'col-xs-8';
+        colEight = document.createElement('div');
+        colEight.className = 'col-xs-8';
 
-      table = document.createElement('table');
-      table.className = 'table';
+        table = document.createElement('table');
+        table.className = 'table';
 
-      tr = table.insertRow();
-      tr.id = obj.album[0].music[0].uuid;
+        tr = table.insertRow();
+        tr.id = obj.album[0].music[0].uuid;
 
-      att = document.createAttribute("data-track");
-      att.value = obj.album[0].music[0].track;
-      tr.setAttributeNode(att);
+        att = document.createAttribute("data-track");
+        att.value = obj.album[0].music[0].track;
+        tr.setAttributeNode(att);
 
-      tr.addEventListener('dblclick', play, false);
+        tr.addEventListener('dblclick', play, false);
 
-      tdTrack = tr.insertCell(0);
-      tdTrack.innerHTML = obj.album[0].music[0].track;
+        tdTrack = tr.insertCell(0);
+        tdTrack.innerHTML = obj.album[0].music[0].track;
 
-      tdTitle = tr.insertCell(1);
-      tdTitle.innerHTML = obj.album[0].music[0].title;
+        tdTitle = tr.insertCell(1);
+        tdTitle.innerHTML = obj.album[0].music[0].title;
 
-      artist.appendChild(row);
-      row.appendChild(colFour);
-      colFour.appendChild(canvas);
-      row.appendChild(colEight);
-      colEight.appendChild(table);
-      library.appendChild(artist);
+        artist.appendChild(row);
+        row.appendChild(colFour);
+        colFour.appendChild(canvas);
+        row.appendChild(colEight);
+        colEight.appendChild(table);
+        library.appendChild(artist);
+      } else {
+        library.appendChild(artist);
+      }
       break;
     case enumTypeUpdate.NEW_ALBUM:
       artist = document.getElementById(info);
 
       row = document.createElement('div');
       row.className = 'row';
+      console.log(obj);
       row.id = obj.uuid;
 
       albumNameHolder = document.createElement('div');
@@ -366,7 +408,11 @@ function displayToLibrary(type, obj, info) {
       canvas.width = '100';
       canvas.height = '100';
 
-      setImage(obj.picture.data, obj.picture.format, canvas);
+
+      if (typeof obj.picture.data.data == "undefined")
+        setImage(obj.picture.data, obj.picture.format, canvas);
+      else
+        setImage(obj.picture.data.data, obj.picture.format, canvas);
 
       colEight = document.createElement('div');
       colEight.className = 'col-xs-8';
@@ -374,26 +420,29 @@ function displayToLibrary(type, obj, info) {
       table = document.createElement('table');
       table.className = 'table';
 
-      tr = table.insertRow();
-      tr.id = obj.music[0].uuid;
+      if (!flag) {
+        tr = table.insertRow();
+        tr.id = obj.music[0].uuid;
 
-      att = document.createAttribute("data-track");
-      att.value = obj.album[0].music[0].track;
-      tr.setAttributeNode(att);
+        att = document.createAttribute("data-track");
+        att.value = obj.music[0].track;
+        tr.setAttributeNode(att);
 
-      tr.addEventListener('dblclick', play, false);
+        tr.addEventListener('dblclick', play, false);
 
-      tdTrack = tr.insertCell(0);
-      tdTrack.innerHTML = obj.music[0].track;
+        tdTrack = tr.insertCell(0);
+        tdTrack.innerHTML = obj.music[0].track;
 
-      tdTitle = tr.insertCell(1);
-      tdTitle.innerHTML = obj.music[0].title;
+        tdTitle = tr.insertCell(1);
+        tdTitle.innerHTML = obj.music[0].title;
+      }
 
       row.appendChild(colFour);
       colFour.appendChild(canvas);
       row.appendChild(colEight);
       colEight.appendChild(table);
       artist.appendChild(row);
+
       break;
     case enumTypeUpdate.NEW_MUSIC:
       table = document.getElementById(info).getElementsByClassName('col-xs-8')[0].getElementsByTagName('table')[0];
@@ -416,15 +465,28 @@ function displayToLibrary(type, obj, info) {
   }
 }
 
+function displayToLibrarySaved(obj) {
+  console.log(obj.length);
+  for (var i = 0; i < obj.length; i++) {
+    displayToLibrary(enumTypeUpdate.NEW_ARTIST, obj[i], null, true);
+    for (var j = 0; j < obj[i].album.length; j++) {
+      displayToLibrary(enumTypeUpdate.NEW_ALBUM, obj[i].album[j], obj[i].uuid, true);
+      for (var l = 0; l < obj[i].album[j].music.length; l++) {
+        displayToLibrary(enumTypeUpdate.NEW_MUSIC, obj[i].album[j].music[l], obj[i].album[j].uuid, true);
+      }
+    }
+  }
+}
+
 //working here
-function organizeTrack(table , tr){
+function organizeTrack(table, tr) {
   var length = table.rows.length;
-  if(length == 1){
-    if(parseInt(table.item(0).getAttribute('data-track')) < parseInt(tr.getAttribute('data-track'))){
+  if (length == 1) {
+    if (parseInt(table.item(0).getAttribute('data-track')) < parseInt(tr.getAttribute('data-track'))) {
 
     }
   }
-  for(var i = 0; i < length; i++){
+  for (var i = 0; i < length; i++) {
     //if(parseInt(table.item(i).getAttribute('data-track')) < )
   }
 }
@@ -455,9 +517,10 @@ function Uint8ToString(u8a) {
 function play() {
   console.log('play active' + this.id);
   var music = getObjects(data, 'uuid', this.id);
-
+  playing.duration = music[0].duration | 0;
   document.getElementById('music-name').innerHTML = music[0].title;
-  document.getElementById('music-time').innerHTML = '0:00 / ' + music[0].duration;
+  document.getElementById('music-time').innerHTML = '0:00 / ' + playing.duration;
+  $("#music-slider").slider("option", "max", playing.duration);
 
   playMusic(music[0].path, this);
 }
@@ -467,24 +530,44 @@ function playMusic(path, element) {
     console.log('setuping music');
     playing.music = setUpMusic(path).play();
     selectMusic(element);
+
+    worker.postMessage({
+      type: enumWorkerMessage.RUN,
+      duration: playing.duration
+    });
+
+    worker.onmessage = function(event) {
+      $("#music-slider").slider("option" , "value" , event.data);
+    };
   } else if (playing.music !== null && playing.state == enumMusicState.PAUSED) {
     console.log('returning music');
     playing.music.play();
-    //playing.music.fade(0, 1, 1000);
-    //playing.state = enumMusicState.PLAYING;
+    worker.postMessage({
+      type: enumWorkerMessage.START,
+      time: playing.music.pos()
+    });
   } else if (playing.music !== null && path !== null && element !== null) {
     console.log('changing music');
+
     playing.music.stop();
     playing.music = null;
     unselectMusic();
     selectMusic(element);
-    playing.music = setUpMusic(path).play().fade(0, 1, 1000);
+    playing.music = setUpMusic(path).play();
+
+    worker.postMessage({
+      type: enumWorkerMessage.RUN,
+      duration: playing.duration
+    });
   }
 }
 
 function pauseMusic() {
   if (playing.music !== null && playing.state == enumMusicState.PLAYING) {
     playing.music.pause();
+    worker.postMessage({
+      type: enumWorkerMessage.PAUSE
+    });
   }
 }
 
@@ -529,6 +612,9 @@ function setUpMusic(path) {
         document.getElementById('music-name').innerHTML = '';
         document.getElementById('music-time').innerHTML = '0:00 / 0:00';
         playing.state = enumMusicState.STOPPED;
+        worker.postMessage({
+          type: enumWorkerMessage.PAUSE
+        });
       }
     },
     onplay: function() {
@@ -556,3 +642,22 @@ function getObjects(obj, key, val) {
 function toMinutes(seconds) {
 
 }
+
+function stopWorker() {
+  worker.terminate();
+  worker = null;
+}
+
+ipcRenderer.on('message-data', function(event, _data) {
+  if (_data !== null) {
+    console.log(_data);
+    data = _data;
+    displayToLibrarySaved(data);
+  }
+});
+
+window.onbeforeunload = function(e) {
+  conf.set('data', data);
+  console.log('set');
+  ipcRenderer.send('message-close-window', data);
+};

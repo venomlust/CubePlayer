@@ -5,10 +5,10 @@
   "main": "core.js",
   "scripts": {
     "start": "electron .",
-    "buildWindows64": "electron-packager . IceBlockPlayer --platform=win32 --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=logo.ico",
-    "buildWindows32": "electron-packager . IceBlockPlayer --platform=win32 --arch=ia32 --version=0.37.2 --overwrite --ignore=node_modules/electron-*",
-    "buildOSX":"electron-packager . IceBlockPlayer --platform=darwin --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-*",
-    "buildLinux":"electron-packager . IceBlockPlayer --platform=linux --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-*"
+    "buildWindows64": "electron-packager . CubePlayer --platform=win32 --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico",
+    "buildWindows32": "electron-packager . CubePlayer --platform=win32 --arch=ia32 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico",
+    "buildOSX":"electron-packager . CubePlayer --platform=darwin --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.icns",
+    "buildLinux":"electron-packager . CubePlayer --platform=linux --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico"
   },
   "repository": {
     "type": "git",
