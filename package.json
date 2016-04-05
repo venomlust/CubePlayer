@@ -7,8 +7,8 @@
     "start": "electron .",
     "buildWindows64": "electron-packager . CubePlayer --platform=win32 --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico",
     "buildWindows32": "electron-packager . CubePlayer --platform=win32 --arch=ia32 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico",
-    "buildOSX":"electron-packager . CubePlayer --platform=darwin --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.icns",
-    "buildLinux":"electron-packager . CubePlayer --platform=linux --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico"
+    "buildOSX": "electron-packager . CubePlayer --platform=darwin --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.icns",
+    "buildLinux": "electron-packager . CubePlayer --platform=linux --arch=x64 --version=0.37.2 --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "configstore": "^2.0.0",
-    "howler": "^1.1.29",
     "musicmetadata": "^2.0.2",
     "uuid": "^2.0.1"
   }

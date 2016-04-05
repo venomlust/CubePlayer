@@ -25,6 +25,7 @@ self.addEventListener("message", function(e) {
     status = enumStatus.PAUSED;
   }else if(e.data.type === enumWorkerMessage.RUN){
     duration = e.data.duration;
+    time = 0;
     status = enumStatus.RUNNING;
     countTime();
   }else if(e.data.type === enumWorkerMessage.SEEK){
@@ -40,5 +41,8 @@ function countTime(){
     console.log(time);
     time += 1;
     postMessage(time);
+  }else{
+    console.log('waiting');
+    setTimeout("countTime()" , 100);
   }
 }

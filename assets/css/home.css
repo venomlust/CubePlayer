@@ -23,7 +23,7 @@ hr {
   margin-top: 0;
   margin-bottom: 0;
 }
-#realtime-info h3{
+#realtime-info h3 {
   margin-left: 10px;
 }
 
@@ -82,15 +82,20 @@ hr {
   height: 1px;
   background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(103, 128, 159, 0.75), rgba(0, 0, 0, 0));
 }
-.slider-handle {
+.ui-widget-header {
+  border: 0px solid transparent;
+  background-color: #34495E;
+  background-image: linear-gradient(to top, #34495E, #485b6e);
+}
+.ui-state-default {
   background-color: #67809F;
   border: 1px solid #34495E;
   background-image: linear-gradient(to top, #67809F, #768ca8);
   opacity: 1;
+  border-radius: 20px;
 }
-.slider-selection {
-  background-color: #34495E;
-  background-image: linear-gradient(to top, #34495E, #485b6e);
+.ui-widget-content {
+  border: 1px solid #67809F;
 }
 tr {
   cursor: pointer;

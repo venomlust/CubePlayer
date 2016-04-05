@@ -11,7 +11,6 @@ var mm = require('musicmetadata');
 var remote = require('remote');
 var uuidGen = require('uuid');
 var debug = true;
-var howler = require('howler');
 
 Array.prototype.extend = function(other_array) {
   if (other_array.constructor !== Array) return;
@@ -35,8 +34,8 @@ var enumMusicState = {
 var enumWorkerMessage = {
   RUN: 0,
   PAUSE: 1,
-  START:2,
-  SEEK:3
+  START: 2,
+  SEEK: 3
 };
 
 var data = [];
@@ -61,7 +60,8 @@ $('#volume-slider').slider({
   max: 10,
   value: 10,
   slide: function(event, ui) {
-    playing.music.volume(ui.value * (ui.value / 100));
+    if (playing.music !== null)
+      playing.music.volume(ui.value * (ui.value / 100));
   }
 });
 
@@ -72,11 +72,13 @@ $('#music-slider').slider({
   max: 0,
   value: 0,
   stop: function(event, ui) {
-    playing.music.pos(ui.value);
-    worker.postMessage({
-      type: enumWorkerMessage.SEEK,
-      time: ui.value
-    });
+    if (playing.music !== null) {
+      playing.music.seek(ui.value);
+      worker.postMessage({
+        type: enumWorkerMessage.SEEK,
+        time: ui.value
+      });
+    }
   }
 });
 
@@ -346,12 +348,12 @@ function displayToLibrary(type, obj, info, flag) {
         canvas = document.createElement('canvas');
         canvas.width = '100';
         canvas.height = '100';
-
-        if (typeof obj.album[0].picture.data.data == "undefined")
-          setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
-        else
-          setImage(obj.album[0].picture.data.data, obj.album[0].picture.format, canvas);
-
+        if (!((obj.album[0].picture.data.data === null) || (typeof obj.album[0].picture.data.data == "undefined")) && ((obj.album[0].picture.data === null) || (typeof obj.album[0].picture.data == "undefined"))) {
+          if (typeof obj.album[0].picture.data.data == "undefined")
+            setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
+          else
+            setImage(obj.album[0].picture.data.data, obj.album[0].picture.format, canvas);
+        }
         colEight = document.createElement('div');
         colEight.className = 'col-xs-8';
 
@@ -519,42 +521,36 @@ function play() {
   var music = getObjects(data, 'uuid', this.id);
   playing.duration = music[0].duration | 0;
   document.getElementById('music-name').innerHTML = music[0].title;
-  document.getElementById('music-time').innerHTML = '0:00 / ' + playing.duration;
+  document.getElementById('music-time').innerHTML = '0:00 / ' + toMinutes(playing.duration);
   $("#music-slider").slider("option", "max", playing.duration);
-
   playMusic(music[0].path, this);
 }
 
 function playMusic(path, element) {
   if (playing.music === null && path !== null && element !== null) {
     console.log('setuping music');
-    playing.music = setUpMusic(path).play();
+    playing.music = setUpMusic(path);
     selectMusic(element);
-
+    playing.music.play();
+    newWorker();
     worker.postMessage({
       type: enumWorkerMessage.RUN,
       duration: playing.duration
     });
-
-    worker.onmessage = function(event) {
-      $("#music-slider").slider("option" , "value" , event.data);
-    };
   } else if (playing.music !== null && playing.state == enumMusicState.PAUSED) {
     console.log('returning music');
     playing.music.play();
     worker.postMessage({
       type: enumWorkerMessage.START,
-      time: playing.music.pos()
+      time: Math.roud(playing.music.seek())
     });
   } else if (playing.music !== null && path !== null && element !== null) {
-    console.log('changing music');
-
-    playing.music.stop();
-    playing.music = null;
+    stopMusic();
+    playing.music = setUpMusic(path);
     unselectMusic();
     selectMusic(element);
-    playing.music = setUpMusic(path).play();
-
+    playing.music.play();
+    newWorker();
     worker.postMessage({
       type: enumWorkerMessage.RUN,
       duration: playing.duration
@@ -572,16 +568,26 @@ function pauseMusic() {
 }
 
 function stopMusic() {
-
+  if (playing.music !== null) {
+    playing.music.stop();
+    playing.music = null;
+    document.getElementById('music-name').innerHTML = '';
+    document.getElementById('music-time').innerHTML = '0:00 / 0:00';
+    playing.state = enumMusicState.STOPPED;
+    stopWorker();
+  }
 }
 
 function selectMusic(element) {
   playing.element = element;
+  console.log(element);
   element.style.backgroundColor = '#34495E';
   element.style.color = 'white';
+  console.log(element);
 }
 
 function unselectMusic() {
+  console.log('unselectMusic');
   if (playing.element !== null) {
     playing.element.removeAttribute("style");
     playing.element = null;
@@ -590,39 +596,31 @@ function unselectMusic() {
 
 function setUpMusic(path) {
   console.log('creating object');
-  var music = new howler.Howl({
-    urls: [path],
+  console.log(path);
+
+  var music = new Howl({
+    src: [path],
     volume: playing.volume,
     onend: function() {
       playing.state = enumMusicState.STOPPED;
       playing.music = null;
+      console.log('end');
       unselectMusic();
-      document.getElementById('music-name').innerHTML = '';
-      document.getElementById('music-time').innerHTML = '0:00 / 0:00';
+      $("#music-name").text('');
+      $("#music-time").text('0:00 / 0:00');
+      $("#music-slider").slider("option", "max", 0);
     },
     onpause: function() {
-      //this.fade(1, 0, 1000);
       playing.state = enumMusicState.PAUSED;
     },
     onstop: function() {
-      if (playing.music !== null) {
-        playing.music.stop();
-        playing.music = null;
-        unselectMusic();
-        document.getElementById('music-name').innerHTML = '';
-        document.getElementById('music-time').innerHTML = '0:00 / 0:00';
-        playing.state = enumMusicState.STOPPED;
-        worker.postMessage({
-          type: enumWorkerMessage.PAUSE
-        });
-      }
+
     },
     onplay: function() {
-      //this.fade(0, 1, 1000);
       playing.state = enumMusicState.PLAYING;
     }
   });
-  console.log('returning music');
+  console.log('returning obj');
   return music;
 }
 
@@ -639,13 +637,29 @@ function getObjects(obj, key, val) {
   return objects;
 }
 
-function toMinutes(seconds) {
+function setTimer(fixed, seconds) {
+  var time = document.getElementById('music-time');
+  if (fixed) {
+    time.innerHTML = time.innerHTML.slice(-5).concat(" ", toMinutes(seconds));
+  } else {
+    time.innerHTML = toMinutes(seconds) + " " + time.innerHTML.slice(-5);
+  }
+}
 
+function toMinutes(seconds) {
+  return (Math.round((seconds / 60) * 100) / 100).toString().replace('.', ':');
 }
 
 function stopWorker() {
   worker.terminate();
   worker = null;
+}
+
+function newWorker() {
+  worker = new Worker("../../assets/js/music-worker.js");
+  worker.onmessage = function(event) {
+    $("#music-slider").slider("option", "value", event.data);
+  };
 }
 
 ipcRenderer.on('message-data', function(event, _data) {
@@ -657,7 +671,7 @@ ipcRenderer.on('message-data', function(event, _data) {
 });
 
 window.onbeforeunload = function(e) {
-  conf.set('data', data);
-  console.log('set');
-  ipcRenderer.send('message-close-window', data);
+  //conf.set('data', data);
+  //console.log('set');
+  //ipcRenderer.send('message-close-window', data);
 };
