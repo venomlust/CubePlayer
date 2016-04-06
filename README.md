@@ -1,6 +1,15 @@
 # CubePlayer
-CrossPlatform Music Player
+## CrossPlatform Music Player
 
-Created by Lucas Bertollo
+###Created by Lucas Bertollo
 
-Icon/Logo created by Jéssica Campos
+##Features
+
+-  Fully Responsive
+-  HTML5 + CSS3
+-  Built on Bootstrap 3.x
+
+##Credits
+
+- ####Icon/Logo created by Jéssica Campos
+- [Bootstrap](http://getbootstrap.com/)
