@@ -348,7 +348,8 @@ function displayToLibrary(type, obj, info, flag) {
         canvas = document.createElement('canvas');
         canvas.width = '100';
         canvas.height = '100';
-        if (!((obj.album[0].picture.data.data === null) || (typeof obj.album[0].picture.data.data == "undefined")) && ((obj.album[0].picture.data === null) || (typeof obj.album[0].picture.data == "undefined"))) {
+        if (!((obj.album[0].picture.data.data !== null) || (typeof obj.album[0].picture.data.data != "undefined")) &&
+          ((obj.album[0].picture.data !== null) || (typeof obj.album[0].picture.data != "undefined"))) {
           if (typeof obj.album[0].picture.data.data == "undefined")
             setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
           else
@@ -410,12 +411,13 @@ function displayToLibrary(type, obj, info, flag) {
       canvas.width = '100';
       canvas.height = '100';
 
-
-      if (typeof obj.picture.data.data == "undefined")
-        setImage(obj.picture.data, obj.picture.format, canvas);
-      else
-        setImage(obj.picture.data.data, obj.picture.format, canvas);
-
+      if (((obj.picture.data.data !== null) || (typeof obj.picture.data.data != "undefined")) &&
+        ((obj.picture.data !== null) || (typeof obj.picture.data != "undefined"))) {
+        if (typeof obj.picture.data.data == "undefined")
+          setImage(obj.picture.data, obj.picture.format, canvas);
+        else
+          setImage(obj.picture.data.data, obj.picture.format, canvas);
+      }
       colEight = document.createElement('div');
       colEight.className = 'col-xs-8';
 
@@ -542,7 +544,7 @@ function playMusic(path, element) {
     playing.music.play();
     worker.postMessage({
       type: enumWorkerMessage.START,
-      time: Math.roud(playing.music.seek())
+      time: Math.round(playing.music.seek())
     });
   } else if (playing.music !== null && path !== null && element !== null) {
     stopMusic();
@@ -605,6 +607,7 @@ function setUpMusic(path) {
       playing.state = enumMusicState.STOPPED;
       playing.music = null;
       console.log('end');
+      stopWorker();
       unselectMusic();
       $("#music-name").text('');
       $("#music-time").text('0:00 / 0:00');
@@ -659,6 +662,7 @@ function newWorker() {
   worker = new Worker("../../assets/js/music-worker.js");
   worker.onmessage = function(event) {
     $("#music-slider").slider("option", "value", event.data);
+    setTimer(false, event.data);
   };
 }
 
