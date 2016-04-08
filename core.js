@@ -7,13 +7,11 @@ var DenseApp = require('app');
 var BrowserWindow = require('browser-window');
 
 var conf = new Configstore(pkg.name, {
-  data: null,
-  lastWindowSize: null,
-  settings: null
+  data: null
 });
 
 global.sharedObj = {
-  'conf': conf
+  'configstore': conf
 };
 
 //conf.set('data' , null);

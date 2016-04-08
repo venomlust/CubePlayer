@@ -15,7 +15,7 @@
     "url": "git+https://github.com/venomlust/CubePlayer.git"
   },
   "author": "Lucas Bertollo",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/venomlust/CubePlayer/issues"
   },

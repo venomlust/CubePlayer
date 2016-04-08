@@ -1,5 +1,3 @@
-//Copyright 2016 Lucas Bertollo
-
 // IDEA: Split functions into another javascript files
 // IDEA: angular.js for the library
 
@@ -8,7 +6,7 @@ var ipcRenderer = require('electron')
   .ipcRenderer;
 var Path = require('path');
 var mm = require('musicmetadata');
-var remote = require('remote');
+var remote = require('electron').remote;
 var uuidGen = require('uuid');
 var debug = true;
 
@@ -38,6 +36,8 @@ var enumWorkerMessage = {
   SEEK: 3
 };
 
+var conf = remote.getGlobal('sharedObj').configstore;
+
 var data = [];
 var worker = new Worker("../../assets/js/music-worker.js");
 
@@ -50,8 +50,6 @@ var playing = {
   time: null,
   title: null
 };
-
-var conf = remote.getGlobal('sharedObj').conf;
 
 $('#volume-slider').slider({
   range: "min",
@@ -87,8 +85,6 @@ $('#music-timeline').css('width', '100%');
 $('#music-volume').css('width', '100%');
 
 $('#library').height($(window).height() - $('#header').height());
-var test = document.getElementById('#library');
-
 
 $(window).resize(function() {
   $('#library').height($(window).height() - $('#header').height());
@@ -348,7 +344,7 @@ function displayToLibrary(type, obj, info, flag) {
         canvas = document.createElement('canvas');
         canvas.width = '100';
         canvas.height = '100';
-        if (!((obj.album[0].picture.data.data !== null) || (typeof obj.album[0].picture.data.data != "undefined")) &&
+        if (((obj.album[0].picture.data.data !== null) || (typeof obj.album[0].picture.data.data != "undefined")) &&
           ((obj.album[0].picture.data !== null) || (typeof obj.album[0].picture.data != "undefined"))) {
           if (typeof obj.album[0].picture.data.data == "undefined")
             setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
@@ -523,7 +519,7 @@ function play() {
   var music = getObjects(data, 'uuid', this.id);
   playing.duration = music[0].duration | 0;
   document.getElementById('music-name').innerHTML = music[0].title;
-  document.getElementById('music-time').innerHTML = '0:00 / ' + toMinutes(playing.duration);
+  $("#music-time").text('0:00 / ' + toMinutes(playing.duration));
   $("#music-slider").slider("option", "max", playing.duration);
   playMusic(music[0].path, this);
 }
@@ -574,7 +570,7 @@ function stopMusic() {
     playing.music.stop();
     playing.music = null;
     document.getElementById('music-name').innerHTML = '';
-    document.getElementById('music-time').innerHTML = '0:00 / 0:00';
+    $("#music-time").text('0:00 / 0:00');
     playing.state = enumMusicState.STOPPED;
     stopWorker();
   }
@@ -675,7 +671,5 @@ ipcRenderer.on('message-data', function(event, _data) {
 });
 
 window.onbeforeunload = function(e) {
-  //conf.set('data', data);
-  //console.log('set');
-  //ipcRenderer.send('message-close-window', data);
+  conf.set('data', data);
 };
