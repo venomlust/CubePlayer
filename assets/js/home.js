@@ -8,7 +8,7 @@ var Path = require('path');
 var mm = require('musicmetadata');
 var remote = require('electron').remote;
 var uuidGen = require('uuid');
-var debug = true;
+var debug = false;
 
 Array.prototype.extend = function(other_array) {
   if (other_array.constructor !== Array) return;
@@ -666,12 +666,14 @@ function setTimer(fixed, seconds) {
   if (fixed) {
     time.innerHTML = time.innerHTML.slice(-5).concat(" ", toMinutes(seconds));
   } else {
-    time.innerHTML = toMinutes(seconds) + " " + time.innerHTML.slice(-5);
+    time.innerHTML = toMinutes(seconds) + " /" + time.innerHTML.slice(-5);
   }
 }
 
 function toMinutes(seconds) {
-  return (Math.round((seconds / 60) * 100) / 100).toString().replace('.', ':');
+  var minute = (seconds / 60).toString()[0];
+
+  return minute + ':' + Math.floor(Math.abs(((parseInt(minute) * 60) - seconds)));
 }
 
 function stopWorker() {
