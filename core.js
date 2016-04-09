@@ -14,7 +14,7 @@ global.sharedObj = {
   'configstore': conf
 };
 
-//conf.set('data' , null);
+//conf.set('data', null);
 
 DenseApp.on('ready', function() {
   var homeWindow = new BrowserWindow({
@@ -32,9 +32,9 @@ DenseApp.on('ready', function() {
   });
   homeWindow.loadURL('file://' + __dirname + '/assets/html/home.html');
   homeWindow.setMenu(null);
-  homeWindow.openDevTools();
-  homeWindow.webContents.on('did-finish-load' , function(){
-    homeWindow.send('message-data' , conf.get('data'));
+  //homeWindow.openDevTools();
+  homeWindow.webContents.on('did-finish-load', function() {
+    homeWindow.send('message-data', conf.get('data'));
   });
 });
 

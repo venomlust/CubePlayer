@@ -39,6 +39,7 @@ var enumWorkerMessage = {
 var conf = remote.getGlobal('sharedObj').configstore;
 
 var data = [];
+
 var worker = new Worker("../../assets/js/music-worker.js");
 
 var playing = {
@@ -262,8 +263,8 @@ function addToLibrary(metadata, path) {
         uuid: 'album_' + uuidGen.v1(),
         name: metadata.album,
         picture: {
-          format: metadata.picture[0].format,
-          data: metadata.picture[0].data
+          format: _format,
+          data: _data
         },
         music: [{
           uuid: 'music_' + uuidGen.v1(),
@@ -368,13 +369,13 @@ function displayToLibrary(type, obj, info, flag) {
 
         if (typeof obj.album[0].picture.data != "undefined")
           if (obj.album[0].picture.data !== null)
-            setImage(obj.album[0].picture.data.data, obj.album[0].picture.format, canvas);
+            setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
 
         if (flag)
           if (obj.album[0].picture.data !== null)
             if (typeof obj.album[0].picture.data.data != "undefined")
               if (obj.album[0].picture.data.data !== null)
-                setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
+                setImage(obj.album[0].picture.data.data, obj.album[0].picture.format, canvas);
 
 
         colEight = document.createElement('div');
@@ -435,13 +436,13 @@ function displayToLibrary(type, obj, info, flag) {
 
       if (typeof obj.picture.data != "undefined")
         if (obj.picture.data !== null)
-          setImage(obj.picture.data.data, obj.picture.format, canvas);
+          setImage(obj.picture.data, obj.picture.format, canvas);
 
       if (flag)
         if (obj.picture.data !== null)
           if (typeof obj.picture.data.data != "undefined")
             if (obj.picture.data.data !== null)
-              setImage(obj.picture.data, obj.picture.format, canvas);
+              setImage(obj.picture.data.data, obj.picture.format, canvas);
 
       colEight = document.createElement('div');
       colEight.className = 'col-xs-8';
