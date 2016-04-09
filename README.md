@@ -6,10 +6,9 @@
 ##Features
 
 -  Fully Responsive
--  HTML5 + CSS3
--  Built on Bootstrap 3.x
+-  HTML5 + CSS3 +Javascript
 
 ##Credits
 
-- ####Icon/Logo created by Jéssica Campos
-- [Bootstrap](http://getbootstrap.com/)
+- Icon/Logo created by Jéssica Campos
+
