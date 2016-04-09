@@ -16,6 +16,6 @@
 
 ##Download
 
-- Windows: Bug Fixing
+- Windows: https://mega.nz/#!gFhVxKRS!emtqQwrHwaSl6ztge3OGFEE3dhBA19EolPEYyD24wmM
 - Mac: Soon
 - Linux: Soon
