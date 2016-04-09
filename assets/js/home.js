@@ -217,6 +217,7 @@ function organizeMediaFiles(filePath) {
 function addToLibrary(metadata, path) {
 
   var holder = null;
+  var _data, _format;
 
   console.log(data);
   var i, j, k;
@@ -247,6 +248,16 @@ function addToLibrary(metadata, path) {
         }
       }
       console.log('new album');
+
+      if (typeof metadata.picture[0] == "undefined") {
+        console.log('undefined');
+        _data = null;
+        _format = null;
+      } else {
+        _format = metadata.picture[0].format;
+        _data = metadata.picture[0].data;
+      }
+
       holder = {
         uuid: 'album_' + uuidGen.v1(),
         name: metadata.album,
@@ -268,6 +279,15 @@ function addToLibrary(metadata, path) {
     }
   }
   console.log('new artist');
+  if (typeof metadata.picture[0] == "undefined") {
+    console.log('undefined');
+    _data = null;
+    _format = null;
+  } else {
+    _format = metadata.picture[0].format;
+    _data = metadata.picture[0].data;
+  }
+
   holder = {
     uuid: 'band_' + uuidGen.v1(),
     artist: metadata.artist[0],
@@ -275,8 +295,8 @@ function addToLibrary(metadata, path) {
       uuid: 'album_' + uuidGen.v1(),
       name: metadata.album,
       picture: {
-        format: metadata.picture[0].format,
-        data: metadata.picture[0].data
+        format: _format,
+        data: _data
       },
       music: [{
         uuid: 'music_' + uuidGen.v1(),
@@ -344,13 +364,19 @@ function displayToLibrary(type, obj, info, flag) {
         canvas = document.createElement('canvas');
         canvas.width = '100';
         canvas.height = '100';
-        if (((obj.album[0].picture.data.data !== null) || (typeof obj.album[0].picture.data.data != "undefined")) &&
-          ((obj.album[0].picture.data !== null) || (typeof obj.album[0].picture.data != "undefined"))) {
-          if (typeof obj.album[0].picture.data.data == "undefined")
-            setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
-          else
+
+
+        if (typeof obj.album[0].picture.data != "undefined")
+          if (obj.album[0].picture.data !== null)
             setImage(obj.album[0].picture.data.data, obj.album[0].picture.format, canvas);
-        }
+
+        if (flag)
+          if (obj.album[0].picture.data !== null)
+            if (typeof obj.album[0].picture.data.data != "undefined")
+              if (obj.album[0].picture.data.data !== null)
+                setImage(obj.album[0].picture.data, obj.album[0].picture.format, canvas);
+
+
         colEight = document.createElement('div');
         colEight.className = 'col-xs-8';
 
@@ -407,13 +433,16 @@ function displayToLibrary(type, obj, info, flag) {
       canvas.width = '100';
       canvas.height = '100';
 
-      if (((obj.picture.data.data !== null) || (typeof obj.picture.data.data != "undefined")) &&
-        ((obj.picture.data !== null) || (typeof obj.picture.data != "undefined"))) {
-        if (typeof obj.picture.data.data == "undefined")
-          setImage(obj.picture.data, obj.picture.format, canvas);
-        else
+      if (typeof obj.picture.data != "undefined")
+        if (obj.picture.data !== null)
           setImage(obj.picture.data.data, obj.picture.format, canvas);
-      }
+
+      if (flag)
+        if (obj.picture.data !== null)
+          if (typeof obj.picture.data.data != "undefined")
+            if (obj.picture.data.data !== null)
+              setImage(obj.picture.data, obj.picture.format, canvas);
+
       colEight = document.createElement('div');
       colEight.className = 'col-xs-8';
 
@@ -593,16 +622,12 @@ function unselectMusic() {
 }
 
 function setUpMusic(path) {
-  console.log('creating object');
-  console.log(path);
-
   var music = new Howl({
     src: [path],
     volume: playing.volume,
     onend: function() {
       playing.state = enumMusicState.STOPPED;
       playing.music = null;
-      console.log('end');
       stopWorker();
       unselectMusic();
       $("#music-name").text('');

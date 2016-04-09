@@ -8,9 +8,9 @@
     "pack": "npm run packWin && npm run packOSX",
     "packWin": "electron-packager . CubePlayer --platform=win32 --arch=x64 --version=0.37.2 --out=dist/win --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.ico --asar",
     "packOSX": "electron-packager . CubePlayer --platform=darwin --arch=x64 --version=0.37.2 --out=dist/win --overwrite --ignore=node_modules/electron-* --icon=assets/img/cube.icns --asar",
-    "build": "npm run buildWin && npm run buildOSX",
+    "build": "npm run pack && npm run buildWin && npm run buildOSX",
     "buildWin": "npm run packWin && electron-builder \"dist/win/CubePlayer-win32-x64\" --platform=win --out=dist/win --config=builder.json",
-    "buildOSX": "npm run packOSX && electron-builder CubePlayer --platform=osx --out=dist/osx --config=builder.json"
+    "buildOSX": "npm run packOSX && electron-builder \"dist/win/CubePlayer-darwin-x64\" --platform=osx --out=dist/osx --config=builder.json"
   },
   "repository": {
     "type": "git",
