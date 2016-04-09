@@ -1,6 +1,6 @@
-# CubePlayer
+# CubePlayer ###(CrossPlatform Music Player)
 <a href="http://lucasbertollo.orgfree.com/cubeplayer.html" target="_blank"><img src="http://lucasbertollo.orgfree.com/assets/images/projects/project-featured.png" alt="Cube Player" width="750" /></a>
-## CrossPlatform Music Player
+
 
 ###Created by Lucas Bertollo
 
