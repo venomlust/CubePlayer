@@ -19,3 +19,7 @@
 - Windows: https://mega.nz/#!gFhVxKRS!emtqQwrHwaSl6ztge3OGFEE3dhBA19EolPEYyD24wmM
 - Mac: Soon
 - Linux: Soon
+
+##How to use
+
+Download, open the program, drag and drop your musics at the blank area and then double click at the one you want to listen.
