@@ -29,8 +29,13 @@
     "electron-prebuilt": "^0.37.2"
   },
   "dependencies": {
+    "angular": "^1.5.8",
+    "angular-filter": "^0.5.11",
+    "async": "^2.0.1",
     "configstore": "^2.0.0",
-    "musicmetadata": "^2.0.2",
+    "howler": "^2.0.0",
+    "lokijs": "^1.4.1",
+    "musicmetadata": "^2.0.4",
     "uuid": "^2.0.1"
   }
 }

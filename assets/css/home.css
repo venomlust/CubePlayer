@@ -110,3 +110,7 @@ h5 {
 #music-time {
   text-align: -webkit-right;
 }
+.bg-default{
+  background-image: url('../img/bg.png');
+  background-size: 100% 100%;
+}
